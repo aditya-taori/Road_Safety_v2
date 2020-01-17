@@ -30,15 +30,17 @@ dash_app.layout = html.Div([
 
 #Main Page / Home page of the websote
 index_page = html.Div([
-     html.H1('ERM Road Safety'),
+     html.H1('ERM Driver Risk Management'),
     html.Img(src= '/assets/Road_Safety_v1.PNG',width = 1800, height= 300),
     html.Br(),
     html.Br(),
-    dcc.Link('Alarms Overview', href='/Overview') ,
+    dcc.Link(html.Img(src= '/assets/Overview_Image.jpg',width = 300, height= 300), href='/Overview') ,
     html.Br(),
      html.Br(),
-    dcc.Link('Dynamic Crash Prevention System', href='/DCP'),
-    html.Br()
+    dcc.Link(html.Img(src= '/assets/DCP_Image.png',width = 300, height= 300), href='/DCP'),
+    html.Br(),
+    html.Br(),
+    html.A('Dynamic Crash Prevention System - Azure',href = 'https://fleetmanagementdemo.azurewebsites.net/')
 ])
 
 
@@ -184,7 +186,7 @@ def update_output(value):
             sub_data,
             	get_position='[Longitude,Latitude]',
             	get_radius=1000,          # Radius is given in meters
-    	    	get_fill_color=[180, 0, 200, 140],  # Set an RGBA value for fill
+    	    	get_fill_color='[Weight==1?141:255, Weight>1?Weight>2?0:126:182 , Weight==3?56:0, 140]',  # Set an RGBA value for fill
     	    	pickable=True)
 
         # Set the viewport location
@@ -200,7 +202,10 @@ def update_output(value):
         key_api = "pk.eyJ1IjoiYWRpdHlhdGFvcmkiLCJhIjoiY2s1NTMzM205MGJyNjNla2JxZDRxdHBvdiJ9.OmOHzC_AyvWfjv9Sulz3tw" 
 	
         # Render
-       	r = pdk.Deck(layers=[layer], initial_view_state=view_state,mapbox_key=key_api,map_style = "mapbox://styles/mapbox/dark-v9")
+       	r = pdk.Deck(layers=[layer], initial_view_state=view_state,mapbox_key=key_api,map_style = "mapbox://styles/mapbox/dark-v9", 
+		tooltip = {
+    			"text": "Contract: {Contract},Driver: {Driver},IVMS Alarms: {NGV Alarms},Fatigue Notifications: {Fatigue Alarms},Distraction Notifications: {Distraction Alarms},Location: {Location},Source Location: {Source Name},Destination Location: {Destination Name}"
+			}    )
 
         r.to_html("assets/Location_wise_Layer"+str(value)+".html",notebook_display=False)
     	#hm_data[(hm_data["Category Alarms"]==
@@ -237,7 +242,10 @@ def update_output(value):
         key_api = "pk.eyJ1IjoiYWRpdHlhdGFvcmkiLCJhIjoiY2s1NTMzM205MGJyNjNla2JxZDRxdHBvdiJ9.OmOHzC_AyvWfjv9Sulz3tw" 
 	
         # Render
-       	r = pdk.Deck(layers=[layer], initial_view_state=view_state,mapbox_key=key_api,map_style = "mapbox://styles/mapbox/dark-v9")
+       	r = pdk.Deck(layers=[layer], initial_view_state=view_state,mapbox_key=key_api,map_style = "mapbox://styles/mapbox/dark-v9",
+		tooltip = {
+    			"text": "Contract: {Contract},Source Location: {Source Name},Destination Location: {Destination Name}"
+			}    )
 
         r.to_html("assets/Contract_Route_Maps"+str(value)+".html",notebook_display=False)
     	#hm_data[(hm_data["Category Alarms"]==
