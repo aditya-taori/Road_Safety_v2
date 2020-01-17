@@ -8,7 +8,7 @@ import pydeck as pdk
 import dash_auth
 import json
 import keplergl
-dash_app = dash.Dash()  #creating a dash object
+dash_app = dash.Dash(__name__)  #creating a dash object
 
 app = dash_app.server  
 
