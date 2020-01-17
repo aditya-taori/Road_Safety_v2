@@ -100,7 +100,6 @@ Flask==1.1.1
 Flask-Compress==1.4.0
 Flask-SeaSurf==0.2.2
 future==0.18.2
-GDAL==3.0.3
 geopandas==0.6.2
 idna==2.8
 importlib-metadata==1.4.0
@@ -139,8 +138,6 @@ pyparsing==2.4.5
 pyproj==2.4.2.post1
 pyrsistent==0.15.7
 python-dateutil==2.8.1
-pytz==2019.3
-pywin32==227
 pywinpty==0.5.7
 pyzmq==18.1.1
 requests==2.22.0
