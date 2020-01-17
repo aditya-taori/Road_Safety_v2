@@ -59,7 +59,7 @@ def display_page(pathname):
 hm_data = pd.read_csv("Heatmap_Data.csv")
 print(hm_data.columns)
 unique_categories = hm_data["Category Alarms"].unique()
-unique_locations = hm_data["Location"].unique()    
+unique_locations = hm_data["Location "].unique()    
 unique_contracts = hm_data["Contract"].unique()
 unique_drivers = hm_data["Driver "].unique()
 
@@ -177,7 +177,7 @@ def update_output(value):
 def update_output(value):
     if value != None:
         print(len(value))
-        sub_data= hm_data[hm_data["Location"].isin(value)]
+        sub_data= hm_data[hm_data["Location "].isin(value)]
         print(sub_data)
         layer = pdk.Layer(
         'ScatterplotLayer',     # Change the `type` positional argument here
