@@ -6,8 +6,9 @@ from dash.dependencies import Input, Output, State
 import pandas as pd
 import pydeck as pdk
 import dash_auth
-
-dash_app = dash.Dash(__name__)  #creating a dash object
+import json
+import keplergl
+dash_app = dash.Dash()  #creating a dash object
 
 app = dash_app.server  
 
@@ -29,8 +30,8 @@ dash_app.layout = html.Div([
 
 #Main Page / Home page of the websote
 index_page = html.Div([
-     html.H1('ERM Driver Risk Management'),
-    html.Img(src= '/assets/Road_Safety_v1.PNG',width = 1700, height= 300),
+     html.H1('ERM Road Safety'),
+    html.Img(src= '/assets/Road_Safety_v1.PNG',width = 1800, height= 300),
     html.Br(),
     html.Br(),
     dcc.Link('Alarms Overview', href='/Overview') ,
@@ -58,12 +59,19 @@ def display_page(pathname):
 hm_data = pd.read_csv("Heatmap_Data.csv")
 print(hm_data.columns)
 unique_categories = hm_data["Category Alarms"].unique()
-unique_locations = hm_data["Location "].unique()    
+unique_locations = hm_data["Location"].unique()    
 unique_contracts = hm_data["Contract"].unique()
+unique_drivers = hm_data["Driver "].unique()
+
+with open('Sample_Example.json', 'r') as f:
+    geojson = f.read()
+
+json_data=json.loads(geojson)
+
 
 Overview_layout = html.Div([html.H1('ERM Driver Risk Management'),  #Heading
-                        html.H2('IVMS Notifications Overview'),
-                        html.Img(src= '/assets/Overview_Image.jpg',width = 1700, height= 300),
+                        html.H2('Alarms Overview'),
+                        html.Img(src= '/assets/Overview_Image.jpg',width = 1800, height= 300),
                         html.Br(),  #Line Break
                         html.Br(),  #Line Break
                         dcc.Link('Main Page', href='/'), #Hyperlink in the webpage
@@ -74,7 +82,7 @@ Overview_layout = html.Div([html.H1('ERM Driver Risk Management'),  #Heading
                             options=[{'label':i,'value':i} for i in unique_categories],
                             multi=True,
                                 ),
-                        html.Div(id="Heatmap_Catgeories",style = {'width':1700,'height':500}),
+                        html.Div(id="Heatmap_Catgeories",style = {'width':1800,'height':500}),
                         html.Br(),  #Line Break
                         html.Br(),  #Line Break
                         html.H2("Spread of IVMS Notifications Location wise"),
@@ -83,7 +91,7 @@ Overview_layout = html.Div([html.H1('ERM Driver Risk Management'),  #Heading
 			    options=[{'label':i,'value':i} for i in unique_locations], 
                             multi=True,
                         ),
-                        html.Div(id="Location Driver alarms",style = {'width':1700,'height':500}),
+                        html.Div(id="Location Driver alarms",style = {'width':1800,'height':500}),
                         html.Br(),  #Line Break
                         html.Br(),  #Line Break
                         html.H2("Route Maps Contract wise "),
@@ -92,7 +100,7 @@ Overview_layout = html.Div([html.H1('ERM Driver Risk Management'),  #Heading
                             options=[{'label':i,'value':i} for i in unique_contracts], 
                             multi=True,
                         ),
-                        html.Div(id="Route Maps",style = {'width':1700,'height':500}),
+                        html.Div(id="Route Maps",style = {'width':1800,'height':500}),
                         html.Br(),  #Line Break
                         html.Br(),  #Line Break
                     
@@ -101,32 +109,25 @@ Overview_layout = html.Div([html.H1('ERM Driver Risk Management'),  #Heading
 DCP_Layout = html.Div([
                         html.H1('ERM Driver Risk Management'),  #Heading
                         html.H2('Dynamic Crash Prevention System'),
-                        html.Img(src= '/assets/DCP_Image.png',width = 1700, height= 300),
+                        html.Img(src= '/assets/DCP_Image.png',width = 1800, height= 300),
                         html.Br(),  #Line Break
                         html.Br(),  #Line Break
                         dcc.Link('Main Page', href='/'), #Hyperlink in the webpage
                         html.Br(),
-                        html.H2("Select Contractor"),
+                        html.H2("Select Contract"),
                         dcc.Dropdown(
-                            options=[
-                                {'label': 'King Kaew (V2)', 'value': 'KKV2'},
-                                {'label': 'LNG (V2)', 'value': 'LNGV2'},
-                                {'label': 'Bangbung (V2)', 'value': 'BV2'}
-                            ],
+			    id = "Contracts_Dropdown",
+                            options=[{'label':i,'value':i} for i in unique_contracts], 
                             multi=True,
-                            value="LNGV2"
+                           
                         ),
                         html.Br(),
-                        html.H2("Select Vehicle"),
+                        html.H2("Select Driver"),
                         dcc.Dropdown(
-                            options=[
-                                {'label': 'DR-142-53', 'value': 'V1'},
-                                {'label': 'DR-143-67', 'value': 'V2'},
-                                {'label': 'DR-134-21', 'value': 'V3'},
-                                {'label': 'DR-137-22', 'value': 'V4'}
-                            ],
+			    id="Drivers_Dropdown",
+                            options=[{'label':i,'value':i} for i in unique_drivers],
                             multi=True,
-                            value="LNGV2"
+                           
                         ),
                         html.Br(),
                         html.Div(id="Live Location")
@@ -167,7 +168,7 @@ def update_output(value):
         r.to_html("assets/Heatmap_Layer"+str(value)+".html",notebook_display=False)
     #hm_data[(hm_data["Category Alarms"]==
         return html.Div([
-                html.Iframe(src = dash_app.get_asset_url("Heatmap_Layer"+str(value)+".html"),width=1500,height = 500)
+                html.Iframe(src = dash_app.get_asset_url("Heatmap_Layer"+str(value)+".html"),width=1800,height = 500)
         ])
 
 @dash_app.callback(
@@ -176,7 +177,7 @@ def update_output(value):
 def update_output(value):
     if value != None:
         print(len(value))
-        sub_data= hm_data[hm_data["Location "].isin(value)]
+        sub_data= hm_data[hm_data["Location"].isin(value)]
         print(sub_data)
         layer = pdk.Layer(
         'ScatterplotLayer',     # Change the `type` positional argument here
@@ -204,7 +205,7 @@ def update_output(value):
         r.to_html("assets/Location_wise_Layer"+str(value)+".html",notebook_display=False)
     	#hm_data[(hm_data["Category Alarms"]==
         return html.Div([
-              html.Iframe(src = dash_app.get_asset_url("Location_wise_Layer"+str(value)+".html"),width=1500,height = 500)
+              html.Iframe(src = dash_app.get_asset_url("Location_wise_Layer"+str(value)+".html"),width=1800,height = 500)
 	        ])
 
 @dash_app.callback(
@@ -241,8 +242,36 @@ def update_output(value):
         r.to_html("assets/Contract_Route_Maps"+str(value)+".html",notebook_display=False)
     	#hm_data[(hm_data["Category Alarms"]==
         return html.Div([
-              html.Iframe(src = dash_app.get_asset_url("Contract_Route_Maps"+str(value)+".html"),width=1500,height = 500)
+              html.Iframe(src = dash_app.get_asset_url("Contract_Route_Maps"+str(value)+".html"),width=1800,height = 500)
 	        ])
+
+@dash_app.callback(
+  	dash.dependencies.Output('Live Location', 'children'),
+    	[dash.dependencies.Input('Drivers_Dropdown', 'value')])
+def update_output(value):
+    if value != None:
+        w1 = keplergl.KeplerGl(height=500)
+
+
+        w1.add_data(json_data, 'geojson')
+
+        w1.save_to_html(file_name='assets/Lets_try.html')
+	
+        return html.Div([
+              html.Iframe(src = dash_app.get_asset_url("Lets_try.html"),width=1800,height = 500)
+	        ])
+    else:	
+        w1 = keplergl.KeplerGl(height=500)
+
+
+        w1.add_data(json_data, 'geojson')
+
+        w1.save_to_html(file_name='assets/Lets_try.html')
+	
+        return html.Div([
+              html.Iframe(src = dash_app.get_asset_url("Lets_try.html"),width=1800,height = 500)
+	        ])
+
 
 if __name__ == '__main__':
     dash_app.run_server()
